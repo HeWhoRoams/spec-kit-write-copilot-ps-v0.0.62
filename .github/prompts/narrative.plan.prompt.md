@@ -1,7 +1,7 @@
 ***
 
 ### 5. `narrative.plan.md`
-This command, based on `speckit.plan`, orchestrates the creation of your narrative outline, character model, and research notes. It acts as the bridge between your high-level idea and the detailed writing plan.
+This command, based on `narrative.plan`, orchestrates the creation of your narrative outline, character model, and research notes. It acts as the bridge between your high-level idea and the detailed writing plan.
 
 ```markdown
 ---

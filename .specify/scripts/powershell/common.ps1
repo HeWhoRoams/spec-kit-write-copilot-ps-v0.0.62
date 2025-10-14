@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
-# Common PowerShell functions analogous to common.sh
+# Common PowerShell functions for Spec-Driven Writing
 
-function Get-RepoRoot {
+function Get-ProjectRoot {
     try {
         $result = git rev-parse --show-toplevel 2>$null
         if ($LASTEXITCODE -eq 0) {
@@ -11,50 +11,36 @@ function Get-RepoRoot {
         # Git command failed
     }
     
-    # Fall back to script location for non-git repos
     return (Resolve-Path (Join-Path $PSScriptRoot "../../..")).Path
 }
 
-function Get-CurrentBranch {
-    # First check if SPECIFY_FEATURE environment variable is set
-    if ($env:SPECIFY_FEATURE) {
-        return $env:SPECIFY_FEATURE
+function Get-CurrentNarrative {
+    if ($env:SDW_NARRATIVE) {
+        return $env:SDW_NARRATIVE
     }
     
-    # Then check git if available
-    try {
-        $result = git rev-parse --abbrev-ref HEAD 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            return $result
-        }
-    } catch {
-        # Git command failed
-    }
+    $projectRoot = Get-ProjectRoot
+    $narrativesDir = Join-Path $projectRoot "narratives"
     
-    # For non-git repos, try to find the latest feature directory
-    $repoRoot = Get-RepoRoot
-    $specsDir = Join-Path $repoRoot "specs"
-    
-    if (Test-Path $specsDir) {
-        $latestFeature = ""
+    if (Test-Path $narrativesDir) {
+        $latestNarrative = ""
         $highest = 0
         
-        Get-ChildItem -Path $specsDir -Directory | ForEach-Object {
+        Get-ChildItem -Path $narrativesDir -Directory | ForEach-Object {
             if ($_.Name -match '^(\d{3})-') {
                 $num = [int]$matches[1]
                 if ($num -gt $highest) {
                     $highest = $num
-                    $latestFeature = $_.Name
+                    $latestNarrative = $_.Name
                 }
             }
         }
         
-        if ($latestFeature) {
-            return $latestFeature
+        if ($latestNarrative) {
+            return $latestNarrative
         }
     }
     
-    # Final fallback
     return "main"
 }
 
@@ -67,49 +53,48 @@ function Test-HasGit {
     }
 }
 
-function Test-FeatureBranch {
+function Test-NarrativeBranch {
     param(
-        [string]$Branch,
+        [string]$Narrative,
         [bool]$HasGit = $true
     )
     
-    # For non-git repos, we can't enforce branch naming but still provide output
     if (-not $HasGit) {
         Write-Warning "[specify] Warning: Git repository not detected; skipped branch validation"
         return $true
     }
     
-    if ($Branch -notmatch '^[0-9]{3}-') {
-        Write-Output "ERROR: Not on a feature branch. Current branch: $Branch"
-        Write-Output "Feature branches should be named like: 001-feature-name"
+    if ($Narrative -notmatch '^[0-9]{3}-') {
+        Write-Output "ERROR: Not on a narrative branch. Current branch: $Narrative"
+        Write-Output "Narrative branches should be named like: 001-narrative-name"
         return $false
     }
     return $true
 }
 
-function Get-FeatureDir {
-    param([string]$RepoRoot, [string]$Branch)
-    Join-Path $RepoRoot "specs/$Branch"
+function Get-NarrativeDir {
+    param([string]$ProjectRoot, [string]$Narrative)
+    Join-Path $ProjectRoot "narratives/$Narrative"
 }
 
-function Get-FeaturePathsEnv {
-    $repoRoot = Get-RepoRoot
-    $currentBranch = Get-CurrentBranch
+function Get-NarrativePathsEnv {
+    $projectRoot = Get-ProjectRoot
+    $currentNarrative = Get-CurrentNarrative
     $hasGit = Test-HasGit
-    $featureDir = Get-FeatureDir -RepoRoot $repoRoot -Branch $currentBranch
+    $narrativeDir = Get-NarrativeDir -ProjectRoot $projectRoot -Narrative $currentNarrative
     
     [PSCustomObject]@{
-        REPO_ROOT     = $repoRoot
-        CURRENT_BRANCH = $currentBranch
-        HAS_GIT       = $hasGit
-        FEATURE_DIR   = $featureDir
-        FEATURE_SPEC  = Join-Path $featureDir 'spec.md'
-        IMPL_PLAN     = Join-Path $featureDir 'plan.md'
-        TASKS         = Join-Path $featureDir 'tasks.md'
-        RESEARCH      = Join-Path $featureDir 'research.md'
-        DATA_MODEL    = Join-Path $featureDir 'data-model.md'
-        QUICKSTART    = Join-Path $featureDir 'quickstart.md'
-        CONTRACTS_DIR = Join-Path $featureDir 'contracts'
+        PROJECT_ROOT       = $projectRoot
+        CURRENT_NARRATIVE  = $currentNarrative
+        HAS_GIT            = $hasGit
+        NARRATIVE_DIR      = $narrativeDir
+        NARRATIVE_SPEC     = Join-Path $narrativeDir 'narrative-spec.md'
+        NARRATIVE_OUTLINE  = Join-Path $narrativeDir 'narrative-outline.md'
+        SCENES             = Join-Path $narrativeDir 'scenes.md'
+        RESEARCH_NOTES     = Join-Path $narrativeDir 'research-notes.md'
+        CHARACTER_MODEL    = Join-Path $narrativeDir 'character-model.md'
+        QUICKSTART         = Join-Path $narrativeDir 'quickstart.md'
+        CONTRACTS_DIR      = Join-Path $narrativeDir 'contracts'
     }
 }
 

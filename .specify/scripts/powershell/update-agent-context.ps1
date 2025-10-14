@@ -1,27 +1,11 @@
 #!/usr/bin/env pwsh
 <#!
 .SYNOPSIS
-Update agent context files with information from plan.md (PowerShell version)
+Update agent context files with information from narrative-outline.md (PowerShell version)
 
 .DESCRIPTION
-Mirrors the behavior of scripts/bash/update-agent-context.sh:
- 1. Environment Validation
- 2. Plan Data Extraction
- 3. Agent File Management (create from template or update existing)
- 4. Content Generation (technology stack, recent changes, timestamp)
- 5. Multi-Agent Support (claude, gemini, copilot, cursor-agent, qwen, opencode, codex, windsurf, kilocode, auggie, roo, q)
-
-.PARAMETER AgentType
-Optional agent key to update a single agent. If omitted, updates all existing agent files (creating a default Claude file if none exist).
-
-.EXAMPLE
-./update-agent-context.ps1 -AgentType claude
-
-.EXAMPLE
-./update-agent-context.ps1   # Updates all existing agent files
-
-.NOTES
-Relies on common helper functions in common.ps1
+This script maintains AI agent context files by parsing narrative specifications 
+and updating agent-specific configuration files with project information.
 #>
 param(
     [Parameter(Position=0)]
@@ -31,82 +15,51 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# Import common helpers
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $ScriptDir 'common.ps1')
 
-# Acquire environment paths
-$envData = Get-FeaturePathsEnv
-$REPO_ROOT     = $envData.REPO_ROOT
-$CURRENT_BRANCH = $envData.CURRENT_BRANCH
-$HAS_GIT       = $envData.HAS_GIT
-$IMPL_PLAN     = $envData.IMPL_PLAN
-$NEW_PLAN = $IMPL_PLAN
+$envData = Get-NarrativePathsEnv
+$PROJECT_ROOT       = $envData.PROJECT_ROOT
+$CURRENT_NARRATIVE  = $envData.CURRENT_NARRATIVE
+$HAS_GIT            = $envData.HAS_GIT
+$NARRATIVE_OUTLINE  = $envData.NARRATIVE_OUTLINE
+$NEW_OUTLINE = $NARRATIVE_OUTLINE
 
-# Agent file paths
-$CLAUDE_FILE   = Join-Path $REPO_ROOT 'CLAUDE.md'
-$GEMINI_FILE   = Join-Path $REPO_ROOT 'GEMINI.md'
-$COPILOT_FILE  = Join-Path $REPO_ROOT '.github/copilot-instructions.md'
-$CURSOR_FILE   = Join-Path $REPO_ROOT '.cursor/rules/specify-rules.mdc'
-$QWEN_FILE     = Join-Path $REPO_ROOT 'QWEN.md'
-$AGENTS_FILE   = Join-Path $REPO_ROOT 'AGENTS.md'
-$WINDSURF_FILE = Join-Path $REPO_ROOT '.windsurf/rules/specify-rules.md'
-$KILOCODE_FILE = Join-Path $REPO_ROOT '.kilocode/rules/specify-rules.md'
-$AUGGIE_FILE   = Join-Path $REPO_ROOT '.augment/rules/specify-rules.md'
-$ROO_FILE      = Join-Path $REPO_ROOT '.roo/rules/specify-rules.md'
-$CODEBUDDY_FILE = Join-Path $REPO_ROOT '.codebuddy/rules/specify-rules.md'
-$Q_FILE        = Join-Path $REPO_ROOT 'AGENTS.md'
+$CLAUDE_FILE   = Join-Path $PROJECT_ROOT 'CLAUDE.md'
+$GEMINI_FILE   = Join-Path $PROJECT_ROOT 'GEMINI.md'
+$COPILOT_FILE  = Join-Path $PROJECT_ROOT '.github/copilot-instructions.md'
+$CURSOR_FILE   = Join-Path $PROJECT_ROOT '.cursor/rules/specify-rules.mdc'
+$QWEN_FILE     = Join-Path $PROJECT_ROOT 'QWEN.md'
+$AGENTS_FILE   = Join-Path $PROJECT_ROOT 'AGENTS.md'
+$WINDSURF_FILE = Join-Path $PROJECT_ROOT '.windsurf/rules/specify-rules.md'
+$KILOCODE_FILE = Join-Path $PROJECT_ROOT '.kilocode/rules/specify-rules.md'
+$AUGGIE_FILE   = Join-Path $PROJECT_ROOT '.augment/rules/specify-rules.md'
+$ROO_FILE      = Join-Path $PROJECT_ROOT '.roo/rules/specify-rules.md'
+$CODEBUDDY_FILE = Join-Path $PROJECT_ROOT '.codebuddy/rules/specify-rules.md'
+$Q_FILE        = Join-Path $PROJECT_ROOT 'AGENTS.md'
 
-$TEMPLATE_FILE = Join-Path $REPO_ROOT '.specify/templates/agent-file-template.md'
+$TEMPLATE_FILE = Join-Path $PROJECT_ROOT '.specify/templates/agent-file-template.md'
 
-# Parsed plan data placeholders
-$script:NEW_LANG = ''
-$script:NEW_FRAMEWORK = ''
-$script:NEW_DB = ''
-$script:NEW_PROJECT_TYPE = ''
+$script:NEW_GENRE = ''
+$script:NEW_VOICE = ''
+$script:NEW_PACING = ''
+$script:NEW_AUDIENCE = ''
 
-function Write-Info { 
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
-    Write-Host "INFO: $Message" 
-}
-
-function Write-Success { 
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
-    Write-Host "$([char]0x2713) $Message" 
-}
-
-function Write-WarningMsg { 
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
-    Write-Warning $Message 
-}
-
-function Write-Err { 
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
-    Write-Host "ERROR: $Message" -ForegroundColor Red 
-}
+function Write-Info { param([string]$Message) Write-Host "INFO: $Message" }
+function Write-Success { param([string]$Message) Write-Host "$([char]0x2713) $Message" }
+function Write-WarningMsg { param([string]$Message) Write-Warning $Message }
+function Write-Err { param([string]$Message) Write-Host "ERROR: $Message" -ForegroundColor Red }
 
 function Validate-Environment {
-    if (-not $CURRENT_BRANCH) {
-        Write-Err 'Unable to determine current feature'
-        if ($HAS_GIT) { Write-Info "Make sure you're on a feature branch" } else { Write-Info 'Set SPECIFY_FEATURE environment variable or create a feature first' }
+    if (-not $CURRENT_NARRATIVE) {
+        Write-Err 'Unable to determine current narrative'
+        if ($HAS_GIT) { Write-Info "Make sure you're on a narrative branch" } else { Write-Info 'Set SDW_NARRATIVE environment variable or create a narrative first' }
         exit 1
     }
-    if (-not (Test-Path $NEW_PLAN)) {
-        Write-Err "No plan.md found at $NEW_PLAN"
-        Write-Info 'Ensure you are working on a feature with a corresponding spec directory'
-        if (-not $HAS_GIT) { Write-Info 'Use: $env:SPECIFY_FEATURE=your-feature-name or create a new feature first' }
+    if (-not (Test-Path $NEW_OUTLINE)) {
+        Write-Err "No narrative-outline.md found at $NEW_OUTLINE"
+        Write-Info 'Ensure you are working on a narrative with a corresponding spec directory'
+        if (-not $HAS_GIT) { Write-Info 'Use: $env:SDW_NARRATIVE=your-narrative-name or create a new narrative first' }
         exit 1
     }
     if (-not (Test-Path $TEMPLATE_FILE)) {
@@ -116,17 +69,11 @@ function Validate-Environment {
     }
 }
 
-function Extract-PlanField {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$FieldPattern,
-        [Parameter(Mandatory=$true)]
-        [string]$PlanFile
-    )
-    if (-not (Test-Path $PlanFile)) { return '' }
-    # Lines like **Language/Version**: Python 3.12
+function Extract-OutlineField {
+    param([string]$FieldPattern, [string]$OutlineFile)
+    if (-not (Test-Path $OutlineFile)) { return '' }
     $regex = "^\*\*$([Regex]::Escape($FieldPattern))\*\*: (.+)$"
-    Get-Content -LiteralPath $PlanFile -Encoding utf8 | ForEach-Object {
+    Get-Content -LiteralPath $OutlineFile -Encoding utf8 | ForEach-Object {
         if ($_ -match $regex) { 
             $val = $Matches[1].Trim()
             if ($val -notin @('NEEDS CLARIFICATION','N/A')) { return $val }
@@ -134,123 +81,82 @@ function Extract-PlanField {
     } | Select-Object -First 1
 }
 
-function Parse-PlanData {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$PlanFile
-    )
-    if (-not (Test-Path $PlanFile)) { Write-Err "Plan file not found: $PlanFile"; return $false }
-    Write-Info "Parsing plan data from $PlanFile"
-    $script:NEW_LANG        = Extract-PlanField -FieldPattern 'Language/Version' -PlanFile $PlanFile
-    $script:NEW_FRAMEWORK   = Extract-PlanField -FieldPattern 'Primary Dependencies' -PlanFile $PlanFile
-    $script:NEW_DB          = Extract-PlanField -FieldPattern 'Storage' -PlanFile $PlanFile
-    $script:NEW_PROJECT_TYPE = Extract-PlanField -FieldPattern 'Project Type' -PlanFile $PlanFile
+function Parse-OutlineData {
+    param([string]$OutlineFile)
+    if (-not (Test-Path $OutlineFile)) { Write-Err "Outline file not found: $OutlineFile"; return $false }
+    Write-Info "Parsing outline data from $OutlineFile"
+    $script:NEW_GENRE    = Extract-OutlineField -FieldPattern 'Genre/Style' -OutlineFile $OutlineFile
+    $script:NEW_VOICE    = Extract-OutlineField -FieldPattern 'Narrative Voice' -OutlineFile $OutlineFile
+    $script:NEW_PACING   = Extract-OutlineField -FieldPattern 'Pacing' -OutlineFile $OutlineFile
+    $script:NEW_AUDIENCE = Extract-OutlineField -FieldPattern 'Target Audience' -OutlineFile $OutlineFile
 
-    if ($NEW_LANG) { Write-Info "Found language: $NEW_LANG" } else { Write-WarningMsg 'No language information found in plan' }
-    if ($NEW_FRAMEWORK) { Write-Info "Found framework: $NEW_FRAMEWORK" }
-    if ($NEW_DB -and $NEW_DB -ne 'N/A') { Write-Info "Found database: $NEW_DB" }
-    if ($NEW_PROJECT_TYPE) { Write-Info "Found project type: $NEW_PROJECT_TYPE" }
+    if ($NEW_GENRE) { Write-Info "Found genre: $NEW_GENRE" } else { Write-WarningMsg 'No genre information found in outline' }
+    if ($NEW_VOICE) { Write-Info "Found voice: $NEW_VOICE" }
+    if ($NEW_PACING) { Write-Info "Found pacing: $NEW_PACING" }
+    if ($NEW_AUDIENCE) { Write-Info "Found audience: $NEW_AUDIENCE" }
     return $true
 }
 
-function Format-TechnologyStack {
-    param(
-        [Parameter(Mandatory=$false)]
-        [string]$Lang,
-        [Parameter(Mandatory=$false)]
-        [string]$Framework
-    )
+function Format-NarrativeDetails {
+    param([string]$Genre, [string]$Voice)
     $parts = @()
-    if ($Lang -and $Lang -ne 'NEEDS CLARIFICATION') { $parts += $Lang }
-    if ($Framework -and $Framework -notin @('NEEDS CLARIFICATION','N/A')) { $parts += $Framework }
+    if ($Genre -and $Genre -ne 'NEEDS CLARIFICATION') { $parts += $Genre }
+    if ($Voice -and $Voice -notin @('NEEDS CLARIFICATION','N/A')) { $parts += $Voice }
     if (-not $parts) { return '' }
     return ($parts -join ' + ')
 }
 
-function Get-ProjectStructure { 
-    param(
-        [Parameter(Mandatory=$false)]
-        [string]$ProjectType
-    )
-    if ($ProjectType -match 'web') { return "backend/`nfrontend/`ntests/" } else { return "src/`ntests/" } 
+function Get-NarrativeStructure { 
+    return "src/`n├── part_1/`n├── part_2/`n└── part_3/"
 }
 
-function Get-CommandsForLanguage { 
-    param(
-        [Parameter(Mandatory=$false)]
-        [string]$Lang
-    )
-    switch -Regex ($Lang) {
-        'Python' { return "cd src; pytest; ruff check ." }
-        'Rust' { return "cargo test; cargo clippy" }
-        'JavaScript|TypeScript' { return "npm test; npm run lint" }
-        default { return "# Add commands for $Lang" }
-    }
-}
-
-function Get-LanguageConventions { 
-    param(
-        [Parameter(Mandatory=$false)]
-        [string]$Lang
-    )
-    if ($Lang) { "${Lang}: Follow standard conventions" } else { 'General: Follow standard conventions' } 
+function Get-WritingConventions { 
+    param([string]$Genre)
+    if ($Genre) { "${Genre}: Follow established conventions" } else { 'General: Follow established conventions' } 
 }
 
 function New-AgentFile {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$TargetFile,
-        [Parameter(Mandatory=$true)]
-        [string]$ProjectName,
-        [Parameter(Mandatory=$true)]
-        [datetime]$Date
-    )
+    param([string]$TargetFile, [string]$ProjectName, [datetime]$Date)
     if (-not (Test-Path $TEMPLATE_FILE)) { Write-Err "Template not found at $TEMPLATE_FILE"; return $false }
     $temp = New-TemporaryFile
     Copy-Item -LiteralPath $TEMPLATE_FILE -Destination $temp -Force
 
-    $projectStructure = Get-ProjectStructure -ProjectType $NEW_PROJECT_TYPE
-    $commands = Get-CommandsForLanguage -Lang $NEW_LANG
-    $languageConventions = Get-LanguageConventions -Lang $NEW_LANG
+    $narrativeStructure = Get-NarrativeStructure
+    $writingConventions = Get-WritingConventions -Genre $NEW_GENRE
 
-    $escaped_lang = $NEW_LANG
-    $escaped_framework = $NEW_FRAMEWORK
-    $escaped_branch = $CURRENT_BRANCH
+    $escaped_genre = $NEW_GENRE
+    $escaped_voice = $NEW_VOICE
+    $escaped_narrative = $CURRENT_NARRATIVE
 
     $content = Get-Content -LiteralPath $temp -Raw -Encoding utf8
     $content = $content -replace '\[PROJECT NAME\]',$ProjectName
     $content = $content -replace '\[DATE\]',$Date.ToString('yyyy-MM-dd')
     
-    # Build the technology stack string safely
-    $techStackForTemplate = ""
-    if ($escaped_lang -and $escaped_framework) {
-        $techStackForTemplate = "- $escaped_lang + $escaped_framework ($escaped_branch)"
-    } elseif ($escaped_lang) {
-        $techStackForTemplate = "- $escaped_lang ($escaped_branch)"
-    } elseif ($escaped_framework) {
-        $techStackForTemplate = "- $escaped_framework ($escaped_branch)"
+    $narrativeDetailsForTemplate = ""
+    if ($escaped_genre -and $escaped_voice) {
+        $narrativeDetailsForTemplate = "- $escaped_genre + $escaped_voice ($escaped_narrative)"
+    } elseif ($escaped_genre) {
+        $narrativeDetailsForTemplate = "- $escaped_genre ($escaped_narrative)"
+    } elseif ($escaped_voice) {
+        $narrativeDetailsForTemplate = "- $escaped_voice ($escaped_narrative)"
     }
     
-    $content = $content -replace '\[EXTRACTED FROM ALL PLAN.MD FILES\]',$techStackForTemplate
-    # For project structure we manually embed (keep newlines)
-    $escapedStructure = [Regex]::Escape($projectStructure)
+    $content = $content -replace '\[EXTRACTED FROM ALL PLAN.MD FILES\]',$narrativeDetailsForTemplate
+    $escapedStructure = [Regex]::Escape($narrativeStructure)
     $content = $content -replace '\[ACTUAL STRUCTURE FROM PLANS\]',$escapedStructure
-    # Replace escaped newlines placeholder after all replacements
-    $content = $content -replace '\[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES\]',$commands
-    $content = $content -replace '\[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE\]',$languageConventions
+    $content = $content -replace '\[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES\]',"# Add narrative-specific writing commands"
+    $content = $content -replace '\[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE\]',$writingConventions
     
-    # Build the recent changes string safely
     $recentChangesForTemplate = ""
-    if ($escaped_lang -and $escaped_framework) {
-        $recentChangesForTemplate = "- ${escaped_branch}: Added ${escaped_lang} + ${escaped_framework}"
-    } elseif ($escaped_lang) {
-        $recentChangesForTemplate = "- ${escaped_branch}: Added ${escaped_lang}"
-    } elseif ($escaped_framework) {
-        $recentChangesForTemplate = "- ${escaped_branch}: Added ${escaped_framework}"
+    if ($escaped_genre -and $escaped_voice) {
+        $recentChangesForTemplate = "- ${escaped_narrative}: Added ${escaped_genre} + ${escaped_voice}"
+    } elseif ($escaped_genre) {
+        $recentChangesForTemplate = "- ${escaped_narrative}: Added ${escaped_genre}"
+    } elseif ($escaped_voice) {
+        $recentChangesForTemplate = "- ${escaped_narrative}: Added ${escaped_voice}"
     }
     
     $content = $content -replace '\[LAST 3 FEATURES AND WHAT THEY ADDED\]',$recentChangesForTemplate
-    # Convert literal \n sequences introduced by Escape to real newlines
     $content = $content -replace '\\n',[Environment]::NewLine
 
     $parent = Split-Path -Parent $TargetFile
@@ -261,49 +167,34 @@ function New-AgentFile {
 }
 
 function Update-ExistingAgentFile {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$TargetFile,
-        [Parameter(Mandatory=$true)]
-        [datetime]$Date
-    )
-    if (-not (Test-Path $TargetFile)) { return (New-AgentFile -TargetFile $TargetFile -ProjectName (Split-Path $REPO_ROOT -Leaf) -Date $Date) }
+    param([string]$TargetFile, [datetime]$Date)
+    if (-not (Test-Path $TargetFile)) { return (New-AgentFile -TargetFile $TargetFile -ProjectName (Split-Path $PROJECT_ROOT -Leaf) -Date $Date) }
 
-    $techStack = Format-TechnologyStack -Lang $NEW_LANG -Framework $NEW_FRAMEWORK
-    $newTechEntries = @()
-    if ($techStack) {
-        $escapedTechStack = [Regex]::Escape($techStack)
-        if (-not (Select-String -Pattern $escapedTechStack -Path $TargetFile -Quiet)) { 
-            $newTechEntries += "- $techStack ($CURRENT_BRANCH)" 
+    $narrativeDetails = Format-NarrativeDetails -Genre $NEW_GENRE -Voice $NEW_VOICE
+    $newDetailsEntries = @()
+    if ($narrativeDetails) {
+        $escapedDetails = [Regex]::Escape($narrativeDetails)
+        if (-not (Select-String -Pattern $escapedDetails -Path $TargetFile -Quiet)) { 
+            $newDetailsEntries += "- $narrativeDetails ($CURRENT_NARRATIVE)" 
         }
     }
-    if ($NEW_DB -and $NEW_DB -notin @('N/A','NEEDS CLARIFICATION')) {
-        $escapedDB = [Regex]::Escape($NEW_DB)
-        if (-not (Select-String -Pattern $escapedDB -Path $TargetFile -Quiet)) { 
-            $newTechEntries += "- $NEW_DB ($CURRENT_BRANCH)" 
-        }
-    }
+    
     $newChangeEntry = ''
-    if ($techStack) { $newChangeEntry = "- ${CURRENT_BRANCH}: Added ${techStack}" }
-    elseif ($NEW_DB -and $NEW_DB -notin @('N/A','NEEDS CLARIFICATION')) { $newChangeEntry = "- ${CURRENT_BRANCH}: Added ${NEW_DB}" }
+    if ($narrativeDetails) { $newChangeEntry = "- ${CURRENT_NARRATIVE}: Added ${narrativeDetails}" }
 
     $lines = Get-Content -LiteralPath $TargetFile -Encoding utf8
     $output = New-Object System.Collections.Generic.List[string]
-    $inTech = $false; $inChanges = $false; $techAdded = $false; $changeAdded = $false; $existingChanges = 0
+    $inDetails = $false; $inChanges = $false; $detailsAdded = $false; $changeAdded = $false; $existingChanges = 0
 
     for ($i=0; $i -lt $lines.Count; $i++) {
         $line = $lines[$i]
-        if ($line -eq '## Active Technologies') {
-            $output.Add($line)
-            $inTech = $true
-            continue
+        if ($line -eq '## Active Technologies') { $output.Add('## Active Narratives'); $inDetails = $true; continue }
+        if ($inDetails -and $line -match '^##\s') {
+            if (-not $detailsAdded -and $newDetailsEntries.Count -gt 0) { $newDetailsEntries | ForEach-Object { $output.Add($_) }; $detailsAdded = $true }
+            $output.Add($line); $inDetails = $false; continue
         }
-        if ($inTech -and $line -match '^##\s') {
-            if (-not $techAdded -and $newTechEntries.Count -gt 0) { $newTechEntries | ForEach-Object { $output.Add($_) }; $techAdded = $true }
-            $output.Add($line); $inTech = $false; continue
-        }
-        if ($inTech -and [string]::IsNullOrWhiteSpace($line)) {
-            if (-not $techAdded -and $newTechEntries.Count -gt 0) { $newTechEntries | ForEach-Object { $output.Add($_) }; $techAdded = $true }
+        if ($inDetails -and [string]::IsNullOrWhiteSpace($line)) {
+            if (-not $detailsAdded -and $newDetailsEntries.Count -gt 0) { $newDetailsEntries | ForEach-Object { $output.Add($_) }; $detailsAdded = $true }
             $output.Add($line); continue
         }
         if ($line -eq '## Recent Changes') {
@@ -324,25 +215,17 @@ function Update-ExistingAgentFile {
         $output.Add($line)
     }
 
-    # Post-loop check: if we're still in the Active Technologies section and haven't added new entries
-    if ($inTech -and -not $techAdded -and $newTechEntries.Count -gt 0) {
-        $newTechEntries | ForEach-Object { $output.Add($_) }
-    }
+    if ($inDetails -and -not $detailsAdded -and $newDetailsEntries.Count -gt 0) { $newDetailsEntries | ForEach-Object { $output.Add($_) } }
 
     Set-Content -LiteralPath $TargetFile -Value ($output -join [Environment]::NewLine) -Encoding utf8
     return $true
 }
 
 function Update-AgentFile {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$TargetFile,
-        [Parameter(Mandatory=$true)]
-        [string]$AgentName
-    )
+    param([string]$TargetFile, [string]$AgentName)
     if (-not $TargetFile -or -not $AgentName) { Write-Err 'Update-AgentFile requires TargetFile and AgentName'; return $false }
     Write-Info "Updating $AgentName context file: $TargetFile"
-    $projectName = Split-Path $REPO_ROOT -Leaf
+    $projectName = Split-Path $PROJECT_ROOT -Leaf
     $date = Get-Date
 
     $dir = Split-Path -Parent $TargetFile
@@ -362,10 +245,7 @@ function Update-AgentFile {
 }
 
 function Update-SpecificAgent {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$Type
-    )
+    param([string]$Type)
     switch ($Type) {
         'claude'   { Update-AgentFile -TargetFile $CLAUDE_FILE   -AgentName 'Claude Code' }
         'gemini'   { Update-AgentFile -TargetFile $GEMINI_FILE   -AgentName 'Gemini CLI' }
@@ -385,20 +265,19 @@ function Update-SpecificAgent {
 }
 
 function Update-AllExistingAgents {
-    $found = $false
-    $ok = $true
-    if (Test-Path $CLAUDE_FILE)   { if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE   -AgentName 'Claude Code')) { $ok = $false }; $found = $true }
-    if (Test-Path $GEMINI_FILE)   { if (-not (Update-AgentFile -TargetFile $GEMINI_FILE   -AgentName 'Gemini CLI')) { $ok = $false }; $found = $true }
-    if (Test-Path $COPILOT_FILE)  { if (-not (Update-AgentFile -TargetFile $COPILOT_FILE  -AgentName 'GitHub Copilot')) { $ok = $false }; $found = $true }
-    if (Test-Path $CURSOR_FILE)   { if (-not (Update-AgentFile -TargetFile $CURSOR_FILE   -AgentName 'Cursor IDE')) { $ok = $false }; $found = $true }
-    if (Test-Path $QWEN_FILE)     { if (-not (Update-AgentFile -TargetFile $QWEN_FILE     -AgentName 'Qwen Code')) { $ok = $false }; $found = $true }
-    if (Test-Path $AGENTS_FILE)   { if (-not (Update-AgentFile -TargetFile $AGENTS_FILE   -AgentName 'Codex/opencode')) { $ok = $false }; $found = $true }
+    $found = $false; $ok = $true
+    if (Test-Path $CLAUDE_FILE) { if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE -AgentName 'Claude Code')) { $ok = $false }; $found = $true }
+    if (Test-Path $GEMINI_FILE) { if (-not (Update-AgentFile -TargetFile $GEMINI_FILE -AgentName 'Gemini CLI')) { $ok = $false }; $found = $true }
+    if (Test-Path $COPILOT_FILE) { if (-not (Update-AgentFile -TargetFile $COPILOT_FILE -AgentName 'GitHub Copilot')) { $ok = $false }; $found = $true }
+    if (Test-Path $CURSOR_FILE) { if (-not (Update-AgentFile -TargetFile $CURSOR_FILE -AgentName 'Cursor IDE')) { $ok = $false }; $found = $true }
+    if (Test-Path $QWEN_FILE) { if (-not (Update-AgentFile -TargetFile $QWEN_FILE -AgentName 'Qwen Code')) { $ok = $false }; $found = $true }
+    if (Test-Path $AGENTS_FILE) { if (-not (Update-AgentFile -TargetFile $AGENTS_FILE -AgentName 'Codex/opencode')) { $ok = $false }; $found = $true }
     if (Test-Path $WINDSURF_FILE) { if (-not (Update-AgentFile -TargetFile $WINDSURF_FILE -AgentName 'Windsurf')) { $ok = $false }; $found = $true }
     if (Test-Path $KILOCODE_FILE) { if (-not (Update-AgentFile -TargetFile $KILOCODE_FILE -AgentName 'Kilo Code')) { $ok = $false }; $found = $true }
-    if (Test-Path $AUGGIE_FILE)   { if (-not (Update-AgentFile -TargetFile $AUGGIE_FILE   -AgentName 'Auggie CLI')) { $ok = $false }; $found = $true }
-    if (Test-Path $ROO_FILE)      { if (-not (Update-AgentFile -TargetFile $ROO_FILE      -AgentName 'Roo Code')) { $ok = $false }; $found = $true }
+    if (Test-Path $AUGGIE_FILE) { if (-not (Update-AgentFile -TargetFile $AUGGIE_FILE -AgentName 'Auggie CLI')) { $ok = $false }; $found = $true }
+    if (Test-Path $ROO_FILE) { if (-not (Update-AgentFile -TargetFile $ROO_FILE -AgentName 'Roo Code')) { $ok = $false }; $found = $true }
     if (Test-Path $CODEBUDDY_FILE) { if (-not (Update-AgentFile -TargetFile $CODEBUDDY_FILE -AgentName 'CodeBuddy')) { $ok = $false }; $found = $true }
-    if (Test-Path $Q_FILE)        { if (-not (Update-AgentFile -TargetFile $Q_FILE        -AgentName 'Amazon Q Developer CLI')) { $ok = $false }; $found = $true }
+    if (Test-Path $Q_FILE) { if (-not (Update-AgentFile -TargetFile $Q_FILE -AgentName 'Amazon Q Developer CLI')) { $ok = $false }; $found = $true }
     if (-not $found) {
         Write-Info 'No existing agent files found, creating default Claude file...'
         if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE -AgentName 'Claude Code')) { $ok = $false }
@@ -409,23 +288,22 @@ function Update-AllExistingAgents {
 function Print-Summary {
     Write-Host ''
     Write-Info 'Summary of changes:'
-    if ($NEW_LANG) { Write-Host "  - Added language: $NEW_LANG" }
-    if ($NEW_FRAMEWORK) { Write-Host "  - Added framework: $NEW_FRAMEWORK" }
-    if ($NEW_DB -and $NEW_DB -ne 'N/A') { Write-Host "  - Added database: $NEW_DB" }
+    if ($NEW_GENRE) { Write-Host "  - Added genre: $NEW_GENRE" }
+    if ($NEW_VOICE) { Write-Host "  - Added voice: $NEW_VOICE" }
+    if ($NEW_PACING) { Write-Host "  - Added pacing: $NEW_PACING" }
     Write-Host ''
     Write-Info 'Usage: ./update-agent-context.ps1 [-AgentType claude|gemini|copilot|cursor-agent|qwen|opencode|codex|windsurf|kilocode|auggie|roo|codebuddy|q]'
 }
 
 function Main {
     Validate-Environment
-    Write-Info "=== Updating agent context files for feature $CURRENT_BRANCH ==="
-    if (-not (Parse-PlanData -PlanFile $NEW_PLAN)) { Write-Err 'Failed to parse plan data'; exit 1 }
+    Write-Info "=== Updating agent context files for narrative $CURRENT_NARRATIVE ==="
+    if (-not (Parse-OutlineData -OutlineFile $NEW_OUTLINE)) { Write-Err 'Failed to parse outline data'; exit 1 }
     $success = $true
     if ($AgentType) {
         Write-Info "Updating specific agent: $AgentType"
         if (-not (Update-SpecificAgent -Type $AgentType)) { $success = $false }
-    }
-    else {
+    } else {
         Write-Info 'No agent specified, updating all existing agent files...'
         if (-not (Update-AllExistingAgents)) { $success = $false }
     }

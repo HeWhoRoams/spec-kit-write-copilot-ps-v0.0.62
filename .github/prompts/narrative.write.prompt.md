@@ -1,5 +1,5 @@
 ### 4. `narrative.write.md`
-This command, a counterpart to `speckit.implement`, is the final step in the workflow. It directs the AI to execute the scene-by-scene writing tasks from the `scenes.md` file, checking them off as they are completed.
+This command, a counterpart to `narrative.implement`, is the final step in the workflow. It directs the AI to execute the scene-by-scene writing tasks from the `scenes.md` file, checking them off as they are completed.
 
 ```markdown
 ---

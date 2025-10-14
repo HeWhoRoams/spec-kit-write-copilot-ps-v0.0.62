@@ -1,43 +1,30 @@
-# Feature Specification: [FEATURE NAME]
+# Narrative Specification: [NARRATIVE NAME]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
-**Input**: User description: "$ARGUMENTS"
+**Narrative Branch**: `[###-narrative-name]`
+**Created**: [DATE]
+**Status**: Draft
+**Input**: Author description: "$ARGUMENTS"
 
-## User Scenarios & Testing *(mandatory)*
+## Plot Points & Character Arcs *(mandatory)*
 
-<!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
--->
+### Character Arc 1 - [Character Name] (Priority: P1)
 
-### User Story 1 - [Brief Title] (Priority: P1)
-
-[Describe this user journey in plain language]
+[Describe this character's journey in plain language]
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific emotional or thematic value]"]
 
 **Acceptance Scenarios**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **Given** [character's initial state], **When** [inciting incident], **Then** [expected internal or external change]
+2. **Given** [a later state], **When** [a new challenge], **Then** [expected new behavior or realization]
 
 ---
 
-### User Story 2 - [Brief Title] (Priority: P2)
+### Character Arc 2 - [Character Name] (Priority: P2)
 
-[Describe this user journey in plain language]
+[Describe this character's journey in plain language]
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
@@ -49,67 +36,34 @@
 
 ---
 
-### User Story 3 - [Brief Title] (Priority: P3)
+### Edge Cases & Plot Holes
 
-[Describe this user journey in plain language]
+- What happens when [a character’s motivation changes abruptly]?
+- How does the system handle [a paradox or contradiction in the plot]?
 
-**Why this priority**: [Explain the value and why it has this priority level]
+## Narrative Requirements *(mandatory)*
 
-**Independent Test**: [Describe how this can be tested independently]
+### Narrative Requirements
 
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-[Add more user stories as needed, each with an assigned priority]
-
-### Edge Cases
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
--->
-
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
-
-## Requirements *(mandatory)*
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
--->
-
-### Functional Requirements
-
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **NR-001**: Narrative MUST [specific capability, e.g., "allow readers to understand the protagonist's motivation"]
+- **NR-002**: Narrative MUST [specific capability, e.g., "establish the world's rules early on"]
+- **NR-003**: Readers MUST be able to [key interaction, e.g., "empathize with the antagonist"]
+- **NR-004**: Narrative MUST [data requirement, e.g., "remain consistent across timelines"]
 
 *Example of marking unclear requirements:*
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **NR-005**: Narrative MUST resolve the conflict via [NEEDS CLARIFICATION: resolution method not specified - sudden revelation, slow realization, dramatic confrontation?]
+- **NR-006**: Thematic resonance MUST be achieved through [NEEDS CLARIFICATION: narrative device not specified - recurring symbols, character monologues, parallel plots?]
 
-### Key Entities *(include if feature involves data)*
+### Key Characters & Concepts *(include if narrative involves complex world-building)*
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+- **[Character 1]**: [What they represent, key traits without specific prose]
+- **[Concept 2]**: [What it represents, relationships to other concepts or characters]
 
-## Success Criteria *(mandatory)*
-
-<!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
--->
+## Narrative Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **SC-001**: [Measurable metric, e.g., "Readers can complete the first chapter in under 10 minutes"]
+- **SC-002**: [Measurable metric, e.g., "The emotional impact of the climax is rated 9/10 by beta readers"]
+- **SC-003**: [Reader satisfaction metric, e.g., "90% of beta readers successfully understand the primary theme on first read"]

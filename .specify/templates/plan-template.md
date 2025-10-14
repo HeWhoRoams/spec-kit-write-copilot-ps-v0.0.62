@@ -1,95 +1,51 @@
-# Implementation Plan: [FEATURE]
+# Narrative Outline & Plan: [NARRATIVE]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Narrative**: `[###-narrative-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Narrative specification from `/narratives/[###-narrative-name]/narrative-spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/narrative.plan` command.
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[Extract from narrative spec: primary requirement + narrative approach from research]
 
-## Technical Context
+## Narrative Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+**Genre/Style**: [e.g., Historical Fiction, Literary Non-Fiction, Fantasy or NEEDS CLARIFICATION]
+**Primary Tropes**: [e.g., Hero's Journey, Chosen One, Fish Out of Water or NEEDS CLARIFICATION]
+**Narrative Voice**: [e.g., First-person, Omniscient Third-person, Limited Third-person or NEEDS CLARIFICATION]
+**Pacing**: [e.g., Slow burn, Fast-paced, Episodic or NEEDS CLARIFICATION]
+**Target Audience**: [e.g., Young Adult, Academic, General Public or NEEDS CLARIFICATION]
+**Total Length**: [e.g., 80,000 words, 10 chapters, 5-page article or NEEDS CLARIFICATION]
+**Constraints**: [e.g., Must be historically accurate, must be suitable for all ages or NEEDS CLARIFICATION]
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+## Narrative Constitution Check
 
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 outlining.*
 
 [Gates determined based on constitution file]
 
 ## Project Structure
 
-### Documentation (this feature)
+### Documentation (this narrative)
 
-```
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
+narratives/[###-narrative]/
+├── narrative-outline.md  # This file (/narrative.plan command output)
+├── research-notes.md     # Phase 0 output (/narrative.plan command)
+├── character-model.md    # Phase 1 output (/narrative.plan command)
+├── quickstart.md         # Phase 1 output (/narrative.plan command)
+└── scenes.md             # Phase 2 output (/narrative.tasks command - NOT created by /narrative.plan)
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
-```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+### Manuscript
+
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── part_1_rising_action/
+│   ├── chapter_01.md
+│   └── chapter_02.md
+├── part_2_climax/
+└── part_3_resolution/
 
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
 
 **Structure Decision**: [Document the selected structure and reference the real
 directories captured above]
@@ -100,5 +56,4 @@ directories captured above]
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [e.g., 4th point of view] | [current need] | [why 3 POVs insufficient] |
