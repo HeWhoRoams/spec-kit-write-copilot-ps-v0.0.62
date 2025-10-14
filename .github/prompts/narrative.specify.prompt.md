@@ -1,9 +1,3 @@
-***
-
-### 6. `narrative.specify.md`
-This command is the starting point for your creative process. It takes a simple prompt and transforms it into a structured narrative specification, including plot points, character arcs, and measurable success criteria.
-
-```markdown
 ---
 description: Create or update the narrative specification from a natural language narrative description.
 scripts:

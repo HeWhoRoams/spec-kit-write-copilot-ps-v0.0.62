@@ -1,9 +1,3 @@
-***
-
-### 3. `narrative.constitution.md`
-The constitution file itself is a template that gets filled in. This command rewrites the command for filling that template to be narrative-focused.
-
-```markdown
 ---
 description: Create or update the project constitution from interactive or provided principle inputs, ensuring all dependent templates stay in sync.
 ---

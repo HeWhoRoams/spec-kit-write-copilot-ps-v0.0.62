@@ -1,9 +1,3 @@
-***
-
-### 7. `narrative.tasks.md`
-This command, based on `narrative.tasks`, analyzes your outline and creates a sequential or parallel list of writing tasks. It enables you to draft your novel scene by scene, ensuring that each piece fits into the larger whole.
-
-```markdown
 ---
 description: Generate an actionable, dependency-ordered scenes.md for the narrative based on available design artifacts.
 scripts:

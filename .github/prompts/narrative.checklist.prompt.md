@@ -1,9 +1,3 @@
-***
-
-### 2. `narrative.checklist.md`
-This command is rewritten to generate a checklist that acts as a quality-control document for your narrative. It can be used to validate everything from character consistency to thematic resonance.
-
-```markdown
 ---
 description: Generate a custom checklist for the current narrative based on author requirements.
 scripts:

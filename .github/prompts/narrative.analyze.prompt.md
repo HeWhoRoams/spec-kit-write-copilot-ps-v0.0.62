@@ -1,5 +1,5 @@
 ---
-description: Perform a non-destructive cross-artifact consistency and quality analysis across narrative-spec.md, narrative-outline.md, and scenes.md after task generation.
+description: Perform a non-destructive cross-artifact consistency and quality analysis across narrative-spec.md, narrative-outline.md, and scenes.md after scene list generation.
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
@@ -157,17 +157,20 @@ Output a Markdown report (no file writes) with the following structure:
 
 Narrative Analysis Report
 
-ID	Category	Severity	Location(s)	Summary	Recommendation
-A1	Duplication	HIGH	narrative-spec.md:L120-134	Two similar plot points...	Merge phrasing; keep clearer version
+| ID | Category | Severity | Location(s) | Summary | Recommendation |
+|----|----------|----------|-------------|---------|----------------|
+| A1 | Duplication | HIGH | narrative-spec.md:L120-134 | Two similar plot points... | Merge phrasing; keep clearer version |
 
-Coverage Summary Table:
-Plot Key	Has Scene?	Scene IDs	Notes
+**Coverage Summary Table:**
 
-Narrative Constitution Alignment Issues: (if any)
+| Plot Key | Has Scene? | Scene IDs | Notes |
+|-----------------|-----------|----------|-------|
 
-Unmapped Scenes: (if any)
+**Narrative Constitution Alignment Issues:** (if any)
 
-Metrics:
+**Unmapped Scenes:** (if any)
+
+**Metrics:**
 
     Total Plot Points
 

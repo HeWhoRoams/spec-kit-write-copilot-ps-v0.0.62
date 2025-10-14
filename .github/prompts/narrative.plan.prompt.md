@@ -1,9 +1,3 @@
-***
-
-### 5. `narrative.plan.md`
-This command, based on `narrative.plan`, orchestrates the creation of your narrative outline, character model, and research notes. It acts as the bridge between your high-level idea and the detailed writing plan.
-
-```markdown
 ---
 description: Execute the narrative planning workflow using the outline template to generate narrative artifacts.
 scripts:
