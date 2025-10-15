@@ -87,7 +87,7 @@ if ($hasGit) {
 $narrativeDir = Join-Path $narrativesDir $narrativeName
 New-Item -ItemType Directory -Path $narrativeDir -Force | Out-Null
 
-$template = Join-Path $projectRoot '.specify/templates/spec-template.md'
+$template = Join-Path $projectRoot '.specify/templates/narrative-spec-template.md'
 $specFile = Join-Path $narrativeDir 'narrative-spec.md'
 if (Test-Path $template) { 
     Copy-Item $template $specFile -Force 
