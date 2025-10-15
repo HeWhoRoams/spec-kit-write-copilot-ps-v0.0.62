@@ -1,3 +1,7 @@
+***
+
+#### `.github/prompts/narrative.analyze.prompt.md`
+```markdown
 ---
 description: Perform a non-destructive cross-artifact consistency and quality analysis across narrative-spec.md, narrative-outline.md, and scenes.md after scene list generation.
 scripts:
@@ -24,177 +28,173 @@ Narrative Constitution Authority: The project constitution (/memory/constitution
 
 Execution Steps
 
-1. Initialize Analysis Context
+    Initialize Analysis Context
 
 Run {SCRIPT} once from project root and parse JSON for NARRATIVE_DIR and AVAILABLE_DOCS. Derive absolute paths:
 
-    SPEC = NARRATIVE_DIR/narrative-spec.md
+SPEC = NARRATIVE_DIR/narrative-spec.md
 
-    OUTLINE = NARRATIVE_DIR/narrative-outline.md
+OUTLINE = NARRATIVE_DIR/narrative-outline.md
 
-    SCENES = NARRATIVE_DIR/scenes.md
+SCENES = NARRATIVE_DIR/scenes.md
 
 Abort with an error message if any required file is missing (instruct the user to run missing prerequisite command).
 For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'''m Groot' (or double-quote if possible: "I'm Groot").
 
-2. Load Artifacts (Progressive Disclosure)
+    Load Artifacts (Progressive Disclosure)
 
 Load only the minimal necessary context from each artifact:
 
 From narrative-spec.md:
 
-    Overview/Context
+Overview/Context
 
-    Plot Points
+Plot Points
 
-    Thematic Elements
+Thematic Elements
 
-    Character Arcs
+Character Arcs
 
-    Edge Cases (if present)
+Edge Cases (if present)
 
 From narrative-outline.md:
 
-    Pacing/Style choices
+Pacing/Style choices
 
-    Character Model references
+Character Model references
 
-    Plot Phases
+Plot Phases
 
-    Narrative constraints
+Narrative constraints
 
 From scenes.md:
 
-    Scene IDs
+Scene IDs
 
-    Descriptions
+Descriptions
 
-    Chapter/Plot grouping
+Chapter/Plot grouping
 
-    Parallel markers [P]
+Parallel markers [P]
 
-    Referenced character/setting names
+Referenced character/setting names
 
 From constitution:
 
-    Load /memory/constitution.md for principle validation
+Load /memory/constitution.md for principle validation
 
-3. Build Semantic Models
+    Build Semantic Models
 
 Create internal representations (do not include raw artifacts in output):
 
-    Plot inventory: Each plot point with a stable key (derive slug based on imperative phrase; e.g., "Hero meets mentor" → hero-meets-mentor)
+Plot inventory: Each plot point with a stable key (derive slug based on imperative phrase; e.g., "Hero meets mentor" → hero-meets-mentor)
 
-    Character arc/action inventory: Discrete character actions with acceptance criteria
+Character arc/action inventory: Discrete character actions with acceptance criteria
 
-    Scene coverage mapping: Map each scene to one or more plot points or character arcs (inference by keyword / explicit reference patterns like IDs or key phrases)
+Scene coverage mapping: Map each scene to one or more plot points or character arcs (inference by keyword / explicit reference patterns like IDs or key phrases)
 
-    Constitution rule set: Extract principle names and MUST/SHOULD normative statements
+Constitution rule set: Extract principle names and MUST/SHOULD normative statements
 
-4. Detection Passes (Token-Efficient Analysis)
+    Detection Passes (Token-Efficient Analysis)
 
 Focus on high-signal findings. Limit to 50 findings total; aggregate remainder in overflow summary.
 
 A. Duplication Detection
 
-    Identify near-duplicate scenes or plot points
+Identify near-duplicate scenes or plot points
 
-    Mark lower-quality phrasing for consolidation
+Mark lower-quality phrasing for consolidation
 
 B. Ambiguity Detection
 
-    Flag vague adjectives (gripping, beautiful, fast-paced, emotionally resonant) lacking measurable criteria
+Flag vague adjectives (gripping, beautiful, fast-paced, emotionally resonant) lacking measurable criteria
 
-    Flag unresolved placeholders (TODO, TKTK, ???, <placeholder>, etc.)
+Flag unresolved placeholders (TODO, TKTK, ???, <placeholder>, etc.)
 
 C. Underspecification
 
-    Plot points with verbs but missing object or measurable outcome
+Plot points with verbs but missing object or measurable outcome
 
-    Character arcs missing acceptance criteria alignment
+Character arcs missing acceptance criteria alignment
 
-    Scenes referencing characters or settings not defined in spec/outline
+Scenes referencing characters or settings not defined in spec/outline
 
 D. Narrative Constitution Alignment
 
-    Any plot point or outline element conflicting with a MUST principle
+Any plot point or outline element conflicting with a MUST principle
 
-    Missing mandated sections or quality gates from constitution
+Missing mandated sections or quality gates from constitution
 
 E. Coverage Gaps
 
-    Plot points with zero associated scenes
+Plot points with zero associated scenes
 
-    Scenes with no mapped plot point/character arc
+Scenes with no mapped plot point/character arc
 
-    Thematic elements not reflected in scenes (e.g., a theme of "loss" that never appears in a scene)
+Thematic elements not reflected in scenes (e.g., a theme of "loss" that never appears in a scene)
 
 F. Inconsistency
 
-    Terminology drift (same concept named differently across files)
+Terminology drift (same concept named differently across files)
 
-    Character traits referenced in outline but absent in spec (or vice versa)
+Character traits referenced in outline but absent in spec (or vice versa)
 
-    Scene ordering contradictions (e.g., a reveal scene before the setup scene)
+Scene ordering contradictions (e.g., a reveal scene before the setup scene)
 
-    Conflicting narrative requirements (e.g., one requires first-person while other specifies third-person)
+Conflicting narrative requirements (e.g., one requires first-person while other specifies third-person)
 
-5. Severity Assignment
+    Severity Assignment
 
 Use this heuristic to prioritize findings:
 
-    CRITICAL: Violates constitution MUST, missing core narrative artifact, or plot point with zero coverage that blocks baseline functionality
+CRITICAL: Violates constitution MUST, missing core narrative artifact, or plot point with zero coverage that blocks baseline functionality
 
-    HIGH: Duplicate or conflicting plot point, ambiguous emotional/thematic attribute, untestable acceptance criterion
+HIGH: Duplicate or conflicting plot point, ambiguous emotional/thematic attribute, untestable acceptance criterion
 
-    MEDIUM: Terminology drift, missing thematic coverage, underspecified subplot
+MEDIUM: Terminology drift, missing thematic coverage, underspecified subplot
 
-    LOW: Style/wording improvements, minor redundancy not affecting execution order
+LOW: Style/wording improvements, minor redundancy not affecting execution order
 
-6. Produce Compact Analysis Report
+    Produce Compact Analysis Report
 
 Output a Markdown report (no file writes) with the following structure:
 
 Narrative Analysis Report
+ID	Category	Severity	Location(s)	Summary	Recommendation
+A1	Duplication	HIGH	narrative-spec.md:L120-134	Two similar plot points...	Merge phrasing; keep clearer version
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
-|----|----------|----------|-------------|---------|----------------|
-| A1 | Duplication | HIGH | narrative-spec.md:L120-134 | Two similar plot points... | Merge phrasing; keep clearer version |
+Coverage Summary Table:
+Plot Key	Has Scene?	Scene IDs	Notes
 
-**Coverage Summary Table:**
+Narrative Constitution Alignment Issues: (if any)
 
-| Plot Key | Has Scene? | Scene IDs | Notes |
-|-----------------|-----------|----------|-------|
+Unmapped Scenes: (if any)
 
-**Narrative Constitution Alignment Issues:** (if any)
+Metrics:
 
-**Unmapped Scenes:** (if any)
+Total Plot Points
 
-**Metrics:**
+Total Scenes
 
-    Total Plot Points
+Coverage % (plot points with >=1 scene)
 
-    Total Scenes
+Ambiguity Count
 
-    Coverage % (plot points with >=1 scene)
+Duplication Count
 
-    Ambiguity Count
+Critical Issues Count
 
-    Duplication Count
-
-    Critical Issues Count
-
-7. Provide Next Actions
+    Provide Next Actions
 
 At end of report, output a concise Next Actions block:
 
-    If CRITICAL issues exist: Recommend resolving before /narrative.write
+If CRITICAL issues exist: Recommend resolving before /narrative.write
 
-    If only LOW/MEDIUM: Author may proceed, but provide improvement suggestions
+If only LOW/MEDIUM: Author may proceed, but provide improvement suggestions
 
-    Provide explicit command suggestions: e.g., "Run /narrative.specify with refinement", "Run /narrative.plan to adjust plot structure", "Manually edit scenes.md to add coverage for 'protagonist-realization'"
+Provide explicit command suggestions: e.g., "Run /narrative.specify with refinement", "Run /narrative.plan to adjust plot structure", "Manually edit scenes.md to add coverage for 'protagonist-realization'"
 
-8. Offer Remediation
+    Offer Remediation
 
 Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
 
@@ -202,22 +202,22 @@ Operating Principles
 
 Context Efficiency
 
-    Minimal high-signal tokens: Focus on actionable findings, not exhaustive documentation
+Minimal high-signal tokens: Focus on actionable findings, not exhaustive documentation
 
-    Progressive disclosure: Load artifacts incrementally; don't dump all content into analysis
+Progressive disclosure: Load artifacts incrementally; don't dump all content into analysis
 
-    Token-efficient output: Limit findings table to 50 rows; summarize overflow
+Token-efficient output: Limit findings table to 50 rows; summarize overflow
 
-    Deterministic results: Rerunning without changes should produce consistent IDs and counts
+Deterministic results: Rerunning without changes should produce consistent IDs and counts
 
 Analysis Guidelines
 
-    NEVER modify files (this is read-only analysis)
+NEVER modify files (this is read-only analysis)
 
-    NEVER hallucinate missing sections (if absent, report them accurately)
+NEVER hallucinate missing sections (if absent, report them accurately)
 
-    Prioritize constitution violations (these are always CRITICAL)
+Prioritize constitution violations (these are always CRITICAL)
 
-    Use examples over exhaustive rules (cite specific instances, not generic patterns)
+Use examples over exhaustive rules (cite specific instances, not generic patterns)
 
-    Report zero issues gracefully (emit success report with coverage statistics)
+Report zero issues gracefully (emit success report with coverage statistics)
