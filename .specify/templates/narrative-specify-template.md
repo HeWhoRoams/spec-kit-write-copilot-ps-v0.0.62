@@ -1,69 +1,314 @@
-# Narrative Specification: [NARRATIVE NAME]
-
-**Narrative Branch**: `[###-narrative-name]`
-**Created**: [DATE]
-**Status**: Draft
-**Input**: Author description: "$ARGUMENTS"
-
-## Plot Points & Character Arcs *(mandatory)*
-
-### Character Arc 1 - [Character Name] (Priority: P1)
-
-[Describe this character's journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific emotional or thematic value]"]
-
-**Acceptance Scenarios**:
-
-1. **Given** [character's initial state], **When** [inciting incident], **Then** [expected internal or external change]
-2. **Given** [a later state], **When** [a new challenge], **Then** [expected new behavior or realization]
-
+---
+description: Create or update the narrative specification from a natural language narrative description.
+scripts:
+  sh: scripts/bash/create-new-narrative.sh --json "{ARGS}"
+  ps: scripts/powershell/create-new-narrative.ps1 -Json "{ARGS}"
 ---
 
-### Character Arc 2 - [Character Name] (Priority: P2)
+## User Input
 
-[Describe this character's journey in plain language]
+text
+$ARGUMENTS
 
-**Why this priority**: [Explain the value and why it has this priority level]
+You MUST consider the user input before proceeding (if not empty).
 
-**Independent Test**: [Describe how this can be tested independently]
+Outline
 
-**Acceptance Scenarios**:
+The text the user typed after /narrative.specify in the triggering message is the narrative description. Assume you always have it available in this conversation even if {ARGS} appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+Given that narrative description, do this:
 
+Run the script {SCRIPT} from project root and parse its JSON output for NARRATIVE_NAME and SPEC_FILE. All file paths must be absolute.
+IMPORTANT You must only ever run this script once. The JSON is provided in the terminal as output - always refer to it to get the actual content you're looking for. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'''m Groot' (or double-quote if possible: "I'm Groot").
+
+Load templates/spec-template.md to understand required sections.
+
+Follow this execution flow:
+
+    Parse user description from Input
+    If empty: ERROR "No narrative description provided"
+
+    Extract key concepts from description
+    Identify: characters, plot points, themes, conflicts
+
+    For unclear aspects:
+
+        Make informed guesses based on context and genre conventions
+
+        Only mark with [NEEDS CLARIFICATION: specific question] if:
+
+            The choice significantly impacts narrative scope or reader experience
+
+            Multiple reasonable interpretations exist with different implications
+
+            No reasonable default exists
+
+        LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total
+
+        Prioritize clarifications by impact: plot > character/theme > style > world-building details
+
+    Fill Plot Points & Character Arcs section
+    If no clear plot flow: ERROR "Cannot determine plot points"
+
+    Generate Narrative Requirements
+    Each requirement must be verifiable
+    Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
+
+    Define Success Criteria
+    Create measurable, genre-agnostic outcomes
+    Include both quantitative metrics (word count, pacing) and qualitative measures (reader satisfaction, emotional impact)
+    Each criterion must be verifiable without specific prose details
+
+    Identify Key Characters & Concepts (if complex world-building involved)
+
+    Return: SUCCESS (spec ready for outlining)
+
+Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the narrative description (arguments) while preserving section order and headings.
+
+Specification Quality Validation: After writing the initial spec, validate it against quality criteria:
+
+a. Create Spec Quality Checklist: Generate a checklist file at NARRATIVE_DIR/checklists/narrative-quality.md using the checklist template structure with these validation items:
+Markdown
+
+Narrative Quality Checklist: [NARRATIVE NAME]
+
+Purpose: Validate specification completeness and quality before proceeding to outlining
+Created: [DATE]
+Narrative: [Link to narrative-spec.md]
+
+Content Quality
+
+    [ ] No specific prose details (grammar, sentence structure, word choice)
+
+    [ ] Focused on reader value and emotional impact
+
+    [ ] Written for a narrative audience
+
+    [ ] All mandatory sections completed
+
+Requirement Completeness
+
+    [ ] No [NEEDS CLARIFICATION] markers remain
+
+    [ ] Requirements are verifiable and unambiguous
+
+    [ ] Success criteria are measurable
+
+    [ ] Success criteria are genre-agnostic (no specific prose details)
+
+    [ ] All plot scenarios are defined
+
+    [ ] Edge cases are identified
+
+    [ ] Scope is clearly bounded
+
+    [ ] Dependencies and assumptions identified
+
+Narrative Readiness
+
+    [ ] All narrative requirements have clear acceptance criteria
+
+    [ ] Character arcs cover primary emotional flows
+
+    [ ] Narrative meets measurable outcomes defined in Success Criteria
+
+    [ ] No specific prose details leak into specification
+
+Notes
+
+    Items marked incomplete require spec updates before /narrative.clarify or /narrative.plan
+
+b. Run Validation Check: Review the spec against each checklist item:
+
+For each item, determine if it passes or fails
+
+Document specific issues found (quote relevant spec sections)
+
+c. Handle Validation Results:
+
+If all items pass: Mark checklist complete and proceed to step 6
+
+If items fail (excluding [NEEDS CLARIFICATION]):
+
+    List the failing items and specific issues
+
+    Update the spec to address each issue
+
+    Re-run validation until all items pass (max 3 iterations)
+
+    If still failing after 3 iterations, document remaining issues in checklist notes and warn user
+
+If [NEEDS CLARIFICATION] markers remain:
+
+    Extract all [NEEDS CLARIFICATION: ...] markers from the spec
+
+    LIMIT CHECK: If more than 3 markers exist, keep only the 3 most critical (by plot/theme/emotional impact) and make informed guesses for the rest
+
+    For each clarification needed (max 3), present options to user in this format:
+    Markdown
+
+        ## Question [N]: [Topic]
+
+        **Context**: [Quote relevant spec section]
+
+        **What we need to know**: [Specific question from NEEDS CLARIFICATION marker]
+
+        **Suggested Answers**:
+
+        | Option | Answer | Implications |
+        |--------|--------|--------------|
+        | A      | [First suggested answer] | [What this means for the narrative] |
+        | B      | [Second suggested answer] | [What this means for the narrative] |
+        | C      | [Third suggested answer] | [What this means for the narrative] |
+        | Custom | Provide your own answer | [Explain how to provide custom input] |
+
+        **Your choice**: _[Wait for user response]_
+
+        CRITICAL - Table Formatting: Ensure markdown tables are properly formatted:
+
+            Use consistent spacing with pipes aligned
+
+            Each cell should have spaces around content: | Content | not |Content|
+
+            Header separator must have at least 3 dashes: |--------|
+
+            Test that the table renders correctly in markdown preview
+
+        Number questions sequentially (Q1, Q2, Q3 - max 3 total)
+
+        Present all questions together before waiting for responses
+
+        Wait for user to respond with their choices for all questions (e.g., "Q1: A, Q2: Custom - [details], Q3: B")
+
+        Update the spec by replacing each [NEEDS CLARIFICATION] marker with the user's selected or provided answer
+
+        Re-run validation after all clarifications are resolved
+
+d. Update Checklist: After each validation iteration, update the checklist file with current pass/fail status
+
+Report completion with narrative name, spec file path, checklist results, and readiness for the next phase (/narrative.clarify or /narrative.plan).
+
+NOTE: The script creates the new directory and initializes the spec file before writing.
+
+General Guidelines
+
+Focus on WHAT the reader needs and WHY.
+
+Avoid HOW to write (no specific prose, sentence structure, or word choice).
+
+Written for a narrative audience, not a technical one.
+
+DO NOT create any checklists that are embedded in the spec. That will be a separate command.
+
+
+***
+
+#### `.github/prompts/narrative.plan.prompt.md`
+```markdown
+---
+description: Execute the narrative planning workflow using the outline template to generate narrative artifacts.
+scripts:
+  sh: scripts/bash/setup-outline.sh --json
+  ps: scripts/powershell/setup-outline.ps1 -Json
+agent_scripts:
+  sh: scripts/bash/update-agent-context.sh __AGENT__
+  ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
 ---
 
-### Edge Cases & Plot Holes
+## User Input
 
-- What happens when [a character’s motivation changes abruptly]?
-- How does the system handle [a paradox or contradiction in the plot]?
+```text
+$ARGUMENTS
 
-## Narrative Requirements *(mandatory)*
+You MUST consider the user input before proceeding (if not empty).
 
-### Narrative Requirements
+Outline
 
-- **NR-001**: Narrative MUST [specific capability, e.g., "allow readers to understand the protagonist's motivation"]
-- **NR-002**: Narrative MUST [specific capability, e.g., "establish the world's rules early on"]
-- **NR-003**: Readers MUST be able to [key interaction, e.g., "empathize with the antagonist"]
-- **NR-004**: Narrative MUST [data requirement, e.g., "remain consistent across timelines"]
+    Setup: Run {SCRIPT} from project root and parse JSON for NARRATIVE_SPEC, NARRATIVE_OUTLINE, NARRATIVES_DIR, NARRATIVE. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'''m Groot' (or double-quote if possible: "I'm Groot").
 
-*Example of marking unclear requirements:*
+    Load context: Read NARRATIVE_SPEC and /memory/constitution.md. Load NARRATIVE_OUTLINE template (already copied).
 
-- **NR-005**: Narrative MUST resolve the conflict via [NEEDS CLARIFICATION: resolution method not specified - sudden revelation, slow realization, dramatic confrontation?]
-- **NR-006**: Thematic resonance MUST be achieved through [NEEDS CLARIFICATION: narrative device not specified - recurring symbols, character monologues, parallel plots?]
+    Execute plan workflow: Follow the structure in NARRATIVE_OUTLINE template to:
 
-### Key Characters & Concepts *(include if narrative involves complex world-building)*
+    Fill Narrative Context (mark unknowns as "NEEDS CLARIFICATION")
 
-- **[Character 1]**: [What they represent, key traits without specific prose]
-- **[Concept 2]**: [What it represents, relationships to other concepts or characters]
+    Fill Narrative Constitution Check section from constitution
 
-## Narrative Success Criteria *(mandatory)*
+    Evaluate gates (ERROR if violations unjustified)
 
-### Measurable Outcomes
+    Phase 0: Generate research-notes.md (resolve all NEEDS CLARIFICATION)
 
-- **SC-001**: [Measurable metric, e.g., "Readers can complete the first chapter in under 10 minutes"]
-- **SC-002**: [Measurable metric, e.g., "The emotional impact of the climax is rated 9/10 by beta readers"]
-- **SC-003**: [Reader satisfaction metric, e.g., "90% of beta readers successfully understand the primary theme on first read"]
+    Phase 1: Generate character-model.md, quickstart.md
+
+    Phase 1: Update agent context by running the agent script
+
+    Re-evaluate Narrative Constitution Check post-design
+
+    Stop and report: Command ends after Phase 2 planning. Report narrative, NARRATIVE_OUTLINE path, and generated artifacts.
+
+Phases
+
+Phase 0: Outline & Research
+
+    Extract unknowns from Narrative Context above:
+
+    For each NEEDS CLARIFICATION → research task
+
+    For each genre/style choice → best practices task
+
+    For each thematic element → patterns task
+
+    Generate and dispatch research agents:
+
+    For each unknown in Narrative Context:
+    Task: "Research {unknown} for {narrative context}"
+    For each narrative choice:
+    Task: "Find best practices for {pacing/style} in {genre}"
+
+    Consolidate findings in research-notes.md using format:
+
+    Decision: [what was chosen]
+
+    Rationale: [why chosen]
+
+    Alternatives considered: [what else evaluated]
+
+Output: research-notes.md with all NEEDS CLARIFICATION resolved
+
+Phase 1: Character & Plot
+
+Prerequisites: research-notes.md complete
+
+    Extract entities from narrative spec → character-model.md:
+
+    Character name, key traits, relationships
+
+    Motivations from narrative requirements
+
+    Arc transitions if applicable
+
+    Generate Plot Points from narrative requirements:
+
+    For each character arc → plot point
+
+    Use standard narrative structures (e.g., three-act structure)
+
+    Agent context update:
+
+    Run {AGENT_SCRIPT}
+
+    These scripts detect which AI agent is in use
+
+    Update the appropriate agent-specific context file
+
+    Add only new narrative details from current plan
+
+    Preserve manual additions between markers
+
+Output: character-model.md, quickstart.md, agent-specific file
+
+Key rules
+
+Use absolute paths
+
+ERROR on gate failures or unresolved clarifications
