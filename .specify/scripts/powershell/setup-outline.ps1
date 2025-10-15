@@ -26,7 +26,7 @@ if (-not (Test-NarrativeBranch -Narrative $paths.CURRENT_NARRATIVE -HasGit:$path
 
 New-Item -ItemType Directory -Path $paths.NARRATIVE_DIR -Force | Out-Null
 
-$template = Join-Path $paths.PROJECT_ROOT '.specify/templates/narrative-outline-template.md'
+$template = Join-Path $paths.PROJECT_ROOT '.specify/templates/plan-template.md'
 if (Test-Path $template) { 
     Copy-Item $template $paths.NARRATIVE_OUTLINE -Force
     Write-Output "Copied narrative outline template to $($paths.NARRATIVE_OUTLINE)"
