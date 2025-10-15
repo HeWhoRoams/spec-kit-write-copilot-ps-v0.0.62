@@ -1,23 +1,20 @@
-# [PROJECT NAME] Development Guidelines
+# [PROJECT NAME] Narrative Guidelines
 
-Auto-generated from all feature plans. Last updated: [DATE]
+Auto-generated from all narrative outlines. Last updated: [DATE]
 
-## Active Technologies
+## Active Narratives
 [EXTRACTED FROM ALL PLAN.MD FILES]
 
-## Project Structure
-```
-[ACTUAL STRUCTURE FROM PLANS]
-```
+## Narrative Structure
 
-## Commands
+[ACTUAL STRUCTURE FROM PLANS]
+
+
+## Writing Commands
 [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]
 
-## Code Style
+## Narrative Style
 [LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE]
 
 ## Recent Changes
 [LAST 3 FEATURES AND WHAT THEY ADDED]
-
-<!-- MANUAL ADDITIONS START -->
-<!-- MANUAL ADDITIONS END -->
