@@ -1,8 +1,12 @@
+***
+
+#### `.github/prompts/narrative.plan.prompt.md`
+```markdown
 ---
 description: Execute the narrative planning workflow using the outline template to generate narrative artifacts.
 scripts:
-  sh: scripts/bash/setup-plan.sh --json
-  ps: scripts/powershell/setup-plan.ps1 -Json
+  sh: scripts/bash/setup-outline.sh --json
+  ps: scripts/powershell/setup-outline.ps1 -Json
 agent_scripts:
   sh: scripts/bash/update-agent-context.sh __AGENT__
   ps: scripts/powershell/update-agent-context.ps1 -AgentType __AGENT__
@@ -23,19 +27,19 @@ Outline
 
     Execute plan workflow: Follow the structure in NARRATIVE_OUTLINE template to:
 
-        Fill Narrative Context (mark unknowns as "NEEDS CLARIFICATION")
+    Fill Narrative Context (mark unknowns as "NEEDS CLARIFICATION")
 
-        Fill Narrative Constitution Check section from constitution
+    Fill Narrative Constitution Check section from constitution
 
-        Evaluate gates (ERROR if violations unjustified)
+    Evaluate gates (ERROR if violations unjustified)
 
-        Phase 0: Generate research-notes.md (resolve all NEEDS CLARIFICATION)
+    Phase 0: Generate research-notes.md (resolve all NEEDS CLARIFICATION)
 
-        Phase 1: Generate character-model.md, quickstart.md
+    Phase 1: Generate character-model.md, quickstart.md
 
-        Phase 1: Update agent context by running the agent script
+    Phase 1: Update agent context by running the agent script
 
-        Re-evaluate Narrative Constitution Check post-design
+    Re-evaluate Narrative Constitution Check post-design
 
     Stop and report: Command ends after Phase 2 planning. Report narrative, NARRATIVE_OUTLINE path, and generated artifacts.
 
@@ -45,26 +49,26 @@ Phase 0: Outline & Research
 
     Extract unknowns from Narrative Context above:
 
-        For each NEEDS CLARIFICATION → research task
+    For each NEEDS CLARIFICATION → research task
 
-        For each genre/style choice → best practices task
+    For each genre/style choice → best practices task
 
-        For each thematic element → patterns task
+    For each thematic element → patterns task
 
     Generate and dispatch research agents:
 
     For each unknown in Narrative Context:
-      Task: "Research {unknown} for {narrative context}"
+    Task: "Research {unknown} for {narrative context}"
     For each narrative choice:
-      Task: "Find best practices for {pacing/style} in {genre}"
+    Task: "Find best practices for {pacing/style} in {genre}"
 
     Consolidate findings in research-notes.md using format:
 
-        Decision: [what was chosen]
+    Decision: [what was chosen]
 
-        Rationale: [why chosen]
+    Rationale: [why chosen]
 
-        Alternatives considered: [what else evaluated]
+    Alternatives considered: [what else evaluated]
 
 Output: research-notes.md with all NEEDS CLARIFICATION resolved
 
@@ -74,34 +78,34 @@ Prerequisites: research-notes.md complete
 
     Extract entities from narrative spec → character-model.md:
 
-        Character name, key traits, relationships
+    Character name, key traits, relationships
 
-        Motivations from narrative requirements
+    Motivations from narrative requirements
 
-        Arc transitions if applicable
+    Arc transitions if applicable
 
     Generate Plot Points from narrative requirements:
 
-        For each character arc → plot point
+    For each character arc → plot point
 
-        Use standard narrative structures (e.g., three-act structure)
+    Use standard narrative structures (e.g., three-act structure)
 
     Agent context update:
 
-        Run {AGENT_SCRIPT}
+    Run {AGENT_SCRIPT}
 
-        These scripts detect which AI agent is in use
+    These scripts detect which AI agent is in use
 
-        Update the appropriate agent-specific context file
+    Update the appropriate agent-specific context file
 
-        Add only new narrative technology from current plan
+    Add only new narrative details from current plan
 
-        Preserve manual additions between markers
+    Preserve manual additions between markers
 
 Output: character-model.md, quickstart.md, agent-specific file
 
 Key rules
 
-    Use absolute paths
+Use absolute paths
 
-    ERROR on gate failures or unresolved clarifications
+ERROR on gate failures or unresolved clarifications
