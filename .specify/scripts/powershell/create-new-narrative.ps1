@@ -14,9 +14,7 @@ if (-not $NarrativeDescription -or $NarrativeDescription.Count -eq 0) {
 }
 $narrativeDesc = ($NarrativeDescription -join ' ').Trim()
 
-# Resolve repository root. Prefer git information when available, but fall back
-# to searching for repository markers so the workflow still functions in repositories that
-# were initialised with --no-git.
+# Resolve project root.
 function Find-ProjectRoot {
     param(
         [string]$StartDir,
@@ -89,7 +87,7 @@ if ($hasGit) {
 $narrativeDir = Join-Path $narrativesDir $narrativeName
 New-Item -ItemType Directory -Path $narrativeDir -Force | Out-Null
 
-$template = Join-Path $projectRoot '.specify/templates/narrative-spec-template.md'
+$template = Join-Path $projectRoot '.specify/templates/spec-template.md'
 $specFile = Join-Path $narrativeDir 'narrative-spec.md'
 if (Test-Path $template) { 
     Copy-Item $template $specFile -Force 
