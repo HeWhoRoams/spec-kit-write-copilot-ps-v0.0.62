@@ -1,3 +1,7 @@
+***
+
+#### `.github/prompts/narrative.tasks.prompt.md`
+```markdown
 ---
 description: Generate an actionable, dependency-ordered scenes.md for the narrative based on available design artifacts.
 scripts:
@@ -14,95 +18,91 @@ You MUST consider the user input before proceeding (if not empty).
 
 Outline
 
-    Setup: Run {SCRIPT} from repo root and parse NARRATIVE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'''m Groot' (or double-quote if possible: "I'm Groot").
+Setup: Run {SCRIPT} from repo root and parse NARRATIVE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'''m Groot' (or double-quote if possible: "I'm Groot").
 
-    Load design documents: Read from NARRATIVE_DIR:
+Load design documents: Read from NARRATIVE_DIR:
 
-        Required: narrative-outline.md (plot structure, pacing, tone), narrative-spec.md (character arcs with priorities)
+    Required: narrative-outline.md (plot structure, pacing, tone), narrative-spec.md (character arcs with priorities)
 
-        Optional: character-model.md (entities), research-notes.md (decisions), quickstart.md (writing examples)
+    Optional: character-model.md (entities), research-notes.md (decisions), quickstart.md (writing examples)
 
-        Note: Not all projects have all documents. Generate scenes based on what's available.
+    Note: Not all projects have all documents. Generate scenes based on what's available.
 
-    Execute scene generation workflow (follow the template structure):
+Execute scene generation workflow (follow the template structure):
 
-        Load narrative-outline.md and extract genre, style, and structure
+    Load narrative-outline.md and extract genre, style, and structure
 
-        Load narrative-spec.md and extract character arcs with their priorities (P1, P2, P3, etc.)
+    Load narrative-spec.md and extract character arcs with their priorities (P1, P2, P3, etc.)
 
-        If character-model.md exists: Extract entities → map to character arcs
+    If character-model.md exists: Extract entities → map to character arcs
 
-        If research-notes.md exists: Extract decisions → generate setup tasks
+    If research-notes.md exists: Extract decisions → generate setup tasks
 
-        Generate tasks ORGANIZED BY CHARACTER ARC:
+    Generate tasks ORGANIZED BY CHARACTER ARC:
 
-            Setup tasks (shared world-building needed by all arcs)
+        Setup tasks (shared world-building needed by all arcs)
 
-            Foundational tasks (prerequisites that must complete before ANY character arc can start)
+        Foundational tasks (prerequisites that must complete before ANY character arc can start)
 
-            For each character arc (in priority order P1, P2, P3...):
+        For each character arc (in priority order P1, P2, P3...):
 
-                Group all scenes needed to complete JUST that arc
+            Group all scenes needed to complete JUST that arc
 
-                Include scenes, dialogue, and inner monologue specific to that arc
+            Include scenes, dialogue, and inner monologue specific to that arc
 
-                Mark which tasks are [P] parallelizable
+            Mark which tasks are [P] parallelizable
 
-            Polish/Integration tasks (cross-cutting concerns)
+        Polish/Integration tasks (cross-cutting concerns)
 
-        Apply task rules:
+    Apply task rules:
 
-            Different chapters = mark [P] for parallel
+        Different chapters = mark [P] for parallel
 
-            Same chapter = sequential (no [P])
+        Same chapter = sequential (no [P])
 
-        Number tasks sequentially (S001, S002...)
+    Number tasks sequentially (S001, S002...)
 
-        Generate a narrative progression graph showing character arc completion order
+    Validate task completeness (each character arc has all needed scenes, independently draftable)
 
-        Create parallel execution examples per character arc
+Generate scenes.md: Use .specify/templates/tasks-template.md as structure, fill with:
 
-        Validate task completeness (each character arc has all needed scenes, independently draftable)
+    Correct narrative name from narrative-outline.md
 
-    Generate scenes.md: Use .specify/templates/scenes-template.md as structure, fill with:
+    Phase 1: Setup tasks (world-building initialization)
 
-        Correct narrative name from narrative-outline.md
+    Phase 2: Foundational tasks (blocking prerequisites for all character arcs)
 
-        Phase 1: Setup tasks (world-building initialization)
+    Phase 3+: One phase per character arc (in priority order from narrative-spec.md)
 
-        Phase 2: Foundational tasks (blocking prerequisites for all character arcs)
+        Each phase includes: arc goal, independent test criteria, writing tasks
 
-        Phase 3+: One phase per character arc (in priority order from narrative-spec.md)
+        Clear [Arc] labels (CA1, CA2, CA3...) for each task
 
-            Each phase includes: arc goal, independent test criteria, writing tasks
+        [P] markers for parallelizable tasks within each arc
 
-            Clear [Arc] labels (CA1, CA2, CA3...) for each task
+        Checkpoint markers after each arc phase
 
-            [P] markers for parallelizable tasks within each arc
+    Final Phase: Polish & cross-cutting concerns
 
-            Checkpoint markers after each arc phase
+    Numbered tasks (S001, S002...) in execution order
 
-        Final Phase: Polish & cross-cutting concerns
+    Clear file paths for each task
 
-        Numbered tasks (S001, S002...) in execution order
+    Dependencies section showing arc completion order
 
-        Clear file paths for each task
+    Parallel execution examples per arc
 
-        Dependencies section showing arc completion order
+    Implementation strategy section (MVP first, incremental delivery)
 
-        Parallel execution examples per arc
+Report: Output path to generated scenes.md and summary:
 
-        Implementation strategy section (MVP first, incremental delivery)
+    Total task count
 
-    Report: Output path to generated scenes.md and summary:
+    Task count per character arc
 
-        Total task count
+    Parallel opportunities identified
 
-        Task count per character arc
-
-        Parallel opportunities identified
-
-        Suggested MVP scope (typically just Character Arc 1)
+    Suggested MVP scope (typically just Character Arc 1)
 
 Context for task generation: {ARGS}
 
