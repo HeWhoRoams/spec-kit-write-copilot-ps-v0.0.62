@@ -20,7 +20,7 @@ if ($Help) {
 
 $paths = Get-NarrativePathsEnv
 
-if (-not (Test-NarrativeBranch -Narrative $paths.CURRENT_NARRATIVE -HasGit $paths.HAS_GIT)) { 
+if (-not (Test-NarrativeBranch -Narrative $paths.CURRENT_NARRATIVE -HasGit:$paths.HAS_GIT)) { 
     exit 1 
 }
 
